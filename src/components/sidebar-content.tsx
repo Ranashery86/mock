@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboardIcon } from "lucide-react";
@@ -16,6 +16,7 @@ export function SidebarContent({
 }) {
   const pathname = usePathname();
   const [supabase] = useState(() => createClient());
+  const channelName = `mismatch-count-${useId().replace(/:/g, "")}`;
   const [mismatchCount, setMismatchCount] = useState<number | null>(null);
 
   const refreshCount = useCallback(async () => {
@@ -31,7 +32,7 @@ export function SidebarContent({
 
   useEffect(() => {
     const channel = supabase
-      .channel("mismatch-count")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "orders" },
@@ -48,7 +49,7 @@ export function SidebarContent({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [supabase, refreshCount]);
+  }, [supabase, channelName, refreshCount]);
 
   return (
     <div className="flex h-full flex-col gap-2 p-4">
