@@ -46,6 +46,7 @@ export type OrderEvent = {
   changed_fields?: string[] | null;
   event_at?: string | null;
   email_from?: string | null;
+  email_to?: string | null;
   email_subject?: string | null;
   attachment_name?: string | null;
   extraction_method?: string | null;

@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronRightIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { EmptyState, ErrorState } from "@/components/data-states";
 import {
   asString,
@@ -48,24 +42,6 @@ function actionLabel(action: string | null): string {
   if (!raw) return "Event";
   return (
     ACTION_LABELS[raw] ?? raw.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-  );
-}
-
-function JsonViewer({ label, value }: { label: string; value: unknown }) {
-  if (value === null || value === undefined) return null;
-
-  return (
-    <Collapsible className="rounded-md border">
-      <CollapsibleTrigger className="group flex w-full items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
-        <ChevronRightIcon className="size-3 transition-transform group-data-[panel-open]:rotate-90" />
-        {label}
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <pre className="max-h-64 overflow-auto border-t bg-muted p-2 text-xs">
-          {JSON.stringify(value, null, 2)}
-        </pre>
-      </CollapsibleContent>
-    </Collapsible>
   );
 }
 
@@ -116,7 +92,7 @@ function EventItem({ event }: { event: OrderEvent }) {
         </div>
       ) : null}
 
-      {event.email_subject || event.email_from ? (
+      {event.email_subject || event.email_from || event.email_to ? (
         <div className="flex flex-col gap-0.5 text-xs">
           {event.email_subject ? (
             <span className="break-words">
@@ -130,6 +106,10 @@ function EventItem({ event }: { event: OrderEvent }) {
               {event.email_from}
             </span>
           ) : null}
+          <span className="break-words">
+            <span className="text-muted-foreground">To: </span>
+            {asString(event.email_to) ?? "—"}
+          </span>
         </div>
       ) : null}
 
@@ -147,9 +127,6 @@ function EventItem({ event }: { event: OrderEvent }) {
           </span>
         ) : null}
       </div>
-
-      <JsonViewer label="Raw payload" value={event.payload} />
-      <JsonViewer label="Meta" value={event.meta} />
     </li>
   );
 }
